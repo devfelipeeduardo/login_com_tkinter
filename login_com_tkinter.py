@@ -10,25 +10,25 @@ print("Sistema Rodando...")
 #Busca o usuário fazendo a verificação se ele existe no sistema, se existe verifica a senha.
 #Verifica se no login possui caracteres especiais ou não.
 
+
+#ADMIN E LISTA DE CADASTROS
 cadastros = [['admin', 'admin']]
+
 def busca_usuario(login, senha):
-    
+
     try:
         with open('cadastros.txt', 'r+', encoding= 'Utf-8') as arquivo:
             for linha in arquivo:
                 linha = linha.strip(",")
                 cadastros.append(linha.split())
 
-            # print(cadastros)
             for cadastro in cadastros:
                 login_registrado = cadastro[0]
                 senha_registrada = cadastro[1]
 
-                # print(login_registrado, senha_registrada)
                 if login == login_registrado and senha == senha_registrada:
                     usuario_existe = True
                     break
-
                 else:
                     usuario_existe = False
 
@@ -39,14 +39,9 @@ def busca_usuario(login, senha):
     return usuario_existe
     
 
+
 #Caracteres de A-Z e números de 0-9 e underline -> "_" 
 CARACTERES_PERMITIDOS = string.ascii_letters + string.digits + "_"
-
-def validar_login(login):
-    for caractere in login:
-        if caractere not in CARACTERES_PERMITIDOS:
-            return False
-    return True
 
 
 #Captura o login e senha da interface de login, faz a verificação pela função busca_usuario e baseado no retorno ativa o evento. 
@@ -74,6 +69,7 @@ def janela_registrar():
         login = entry_reg_login.get()
         senha = entry_reg_senha.get()
         usuario = busca_usuario(login, senha)
+        registro_valido = True
 
         if usuario == True:
             messagebox.showinfo("Usuário já existe.", "O usuário já existe. Por favor, utilize outro login!")
@@ -84,28 +80,35 @@ def janela_registrar():
                 cadastros = arquivo.readlines()
                 logins_existentes = [cadastro.split()[0] for cadastro in cadastros]
                 
-                print(logins_existentes)
 
                 if login in logins_existentes:
                     messagebox.showinfo("Usuário já existe.", "O usuário já existe. Por favor, utilize outro login!")
                 else:
-                    arquivo.writelines(f'{login} {senha}\n')
-                    messagebox.showinfo("Cadastro Aprovado","Cadastro aprovado")
+                    for caractere in login:
+                        if caractere not in CARACTERES_PERMITIDOS:
+                            registro_valido = False
+                            messagebox.showinfo("Uso de Caractere Inválido", "Uso de caractere não permitido, somente [A-Z] ou [0-9] e '_' ")
+                            break
+                    if registro_valido == True:
+                        arquivo.writelines(f'{login} {senha}\n')
+                        messagebox.showinfo("Cadastro Aprovado","Cadastro aprovado")
+                    else:
+                        pass
 
 
     #BASE TK
     janela_registro = Toplevel(janela)
     janela_registro.title("Registrar")
     janela_registro.resizable(width=FALSE, height=FALSE)
-
+    janela_registro.iconphoto(False, PhotoImage(file="icones\icone_login.png"))
 
     #CENTRALIZAR JANELA REGISTRO
     largura_janela_reg = 275
     altura_janela_reg = 200
     largura_tela_reg = janela.winfo_screenwidth()
     altura_tela_reg = janela.winfo_screenheight()
-    pos_x_reg = (largura_tela_reg - largura_janela_reg) // 2
-    pos_y_reg = (altura_tela_reg - altura_janela_reg) // 2
+    pos_x_reg = (largura_tela_reg + 30 - largura_janela_reg) // 2
+    pos_y_reg = (altura_tela_reg + 30 - altura_janela_reg) // 2
     janela_registro.geometry(f'{largura_janela_reg}x{altura_janela_reg}+{pos_x_reg}+{pos_y_reg}')
 
 
@@ -133,10 +136,12 @@ def janela_registrar():
     botao_registrar.place(x=100, y=145)
 
 
-#BASE TK
+
+#BASE TK JANELA PRINCIPAL
 janela = Tk()
 janela.title('Sistema de Login')
 janela.resizable(width=FALSE, height=FALSE)
+janela.iconphoto(False, PhotoImage(file="icones\icone_registro.png"))
 
 
 #CENTRALIZAR JANELA
